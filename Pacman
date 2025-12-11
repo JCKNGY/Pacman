@@ -107,7 +107,7 @@ namespace Pacman
             }
             if (kb.IsKeyDown(Keys.D) || kb.IsKeyDown(Keys.Right))
             {
-                pacMovement.X = (-1 * pacSpeed);
+                pacMovement.X = pacSpeed;
                 pacMovement.Y = 0;
                 pacDirection = 0;
             }
@@ -119,14 +119,14 @@ namespace Pacman
             }
             if (kb.IsKeyDown(Keys.A) || kb.IsKeyDown(Keys.Left))
             {
-                pacMovement.X = pacSpeed;
+                pacMovement.X = (-1 * pacSpeed); ;
                 pacMovement.Y = 0;
                 pacDirection = 180;
             }
 
             pacPos.X += pacMovement.X;
             pacPos.Y += pacMovement.Y;
-            pacman = new Rectangle(pacDestination)
+            pacmanDestination = new Rectangle((int)(pacStart.X + pacPos.X), (int)(pacStart.Y + pacPos.Y), text, text);
 
             oldKB = kb;
             base.Update(gameTime);
