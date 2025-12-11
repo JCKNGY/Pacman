@@ -21,7 +21,7 @@ namespace Test
 
         Rectangle background;
 
-        Texture2D background_tex;
+        Texture2D background_tex,box;
 
 
         public Game1()
@@ -59,6 +59,7 @@ namespace Test
             // Create a new SpriteBatch, which can be used to draw textures.
             spriteBatch = new SpriteBatch(GraphicsDevice);
             background_tex = this.Content.Load<Texture2D>("pacman map");
+            box = this.Content.Load<Texture2D>("whitebox");
             // TODO: use this.Content to load your game content here
         }
 
@@ -97,8 +98,8 @@ namespace Test
             spriteBatch.Begin();
 
             spriteBatch.Draw(background_tex, background, Color.White);
-            
-            spriteBatch.Draw()
+
+            spriteBatch.Draw(box, new Rectangle(88, 48, 98, 48), Color.White);
 
             spriteBatch.End(); 
             // TODO: Add your drawing code here
