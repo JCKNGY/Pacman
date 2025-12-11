@@ -24,7 +24,7 @@ namespace Pacman
         Rectangle pacmanDestination;
         int pacSpeed;
         int pacDirection;
-        int text = 60;
+        int text = 30;
         Vector2 pacMovement;
         Vector2 pacPos;
         Vector2 pacStart;
@@ -48,7 +48,7 @@ namespace Pacman
             // TODO: Add your initialization logic here
             pacMovement = new Vector2();
             pacPos = new Vector2();
-            pacSpeed = 5; //Pacman's base movement speed
+            pacSpeed = 3; //Pacman's base movement speed
             pacMovement.X = pacSpeed;
             pacMovement.Y = 0; //Pacman begins game moving right
             pacPos.X = 0;
@@ -57,7 +57,7 @@ namespace Pacman
             pacStart.Y = 100; //pacman starting position
 
             pacman = new Rectangle(639, 67, 60, 60);
-            pacmanDestination = new Rectangle((int)pacStart.X, (int)pacStart.Y, 60, 60);
+            pacmanDestination = new Rectangle((int)pacStart.X, (int)pacStart.Y, text, text);
             pacDirection = 0;
 
             base.Initialize();
@@ -142,7 +142,7 @@ namespace Pacman
 
             // TODO: Add your drawing code here
             spriteBatch.Begin();
-            spriteBatch.Draw(pacTxt, pacmanDestination, pacman, Color.White, (float)MathHelper.ToRadians(pacDirection), new Vector2(text / 2, text / 2), SpriteEffects.None, 0);
+            spriteBatch.Draw(pacTxt, pacmanDestination, pacman, Color.White, (float)MathHelper.ToRadians(pacDirection), new Vector2(60 / 2, 60 / 2), SpriteEffects.None, 0);
             spriteBatch.End();
 
             base.Draw(gameTime);
