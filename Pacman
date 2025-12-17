@@ -9,7 +9,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 
-namespace Test
+namespace Pacman
 {
     /// <summary>
     /// This is the main type for your game
@@ -18,6 +18,21 @@ namespace Test
     {
         GraphicsDeviceManager graphics;
         SpriteBatch spriteBatch;
+
+        Texture2D pacTxt;
+        Rectangle pacman;
+        Rectangle pacmanDestination;
+        int pacSpeed;
+        int pacDirection;
+        int text = 30;
+        Vector2 pacMovement;
+        Vector2 pacPos;
+        Vector2 pacStart;
+        // Normal Pellet
+        Rectangle pellet;
+        Rectangle[] pelletDestination;
+
+        KeyboardState oldKB;
 
         public Game1()
         {
@@ -34,6 +49,23 @@ namespace Test
         protected override void Initialize()
         {
             // TODO: Add your initialization logic here
+            pacMovement = new Vector2();
+            pacPos = new Vector2();
+            pacSpeed = 3; //Pacman's base movement speed
+            pacMovement.X = pacSpeed;
+            pacMovement.Y = 0; //Pacman begins game moving right
+            pacPos.X = 0;
+            pacPos.Y = 0;
+            pacStart.X = 100;
+            pacStart.Y = 100; //pacman starting position
+
+            pacman = new Rectangle(639, 67, 60, 60);
+            pacmanDestination = new Rectangle((int)pacStart.X, (int)pacStart.Y, text, text);
+            pacDirection = 0;
+            // Pellets
+            pelletDestination = new Rectangle[240];
+            pelletDestination[1] = new Rectangle(90, 90, 8, 8);
+            pellet = new Rectangle(876, 588, 8, 8);
 
             base.Initialize();
         }
@@ -48,6 +80,7 @@ namespace Test
             spriteBatch = new SpriteBatch(GraphicsDevice);
 
             // TODO: use this.Content to load your game content here
+            pacTxt = this.Content.Load<Texture2D>("Pac-Man SpriteSheet");
         }
 
         /// <summary>
@@ -66,12 +99,57 @@ namespace Test
         /// <param name="gameTime">Provides a snapshot of timing values.</param>
         protected override void Update(GameTime gameTime)
         {
+            KeyboardState kb = Keyboard.GetState();
             // Allows the game to exit
             if (GamePad.GetState(PlayerIndex.One).Buttons.Back == ButtonState.Pressed)
                 this.Exit();
 
             // TODO: Add your update logic here
 
+            if (kb.IsKeyDown(Keys.W) || kb.IsKeyDown(Keys.Up))
+            {
+                pacMovement.X = 0;
+                pacMovement.Y = (-1 * pacSpeed);
+                pacDirection = 270;
+            }
+            if (kb.IsKeyDown(Keys.D) || kb.IsKeyDown(Keys.Right))
+            {
+                pacMovement.X = pacSpeed;
+                pacMovement.Y = 0;
+                pacDirection = 0;
+            }
+            if (kb.IsKeyDown(Keys.S) || kb.IsKeyDown(Keys.Down))
+            {
+                pacMovement.X = 0;
+                pacMovement.Y = pacSpeed;
+                pacDirection = 90;
+            }
+            if (kb.IsKeyDown(Keys.A) || kb.IsKeyDown(Keys.Left))
+            {
+                pacMovement.X = (-1 * pacSpeed); ;
+                pacMovement.Y = 0;
+                pacDirection = 180;
+            }
+
+            pacPos.X += pacMovement.X;
+            pacPos.Y += pacMovement.Y;
+            pacmanDestination = new Rectangle((int)(pacStart.X + pacPos.X), (int)(pacStart.Y + pacPos.Y), text, text);
+            //Warp Zone
+            if (pacmanDestination.X > GraphicsDevice.Viewport.Width)
+            {
+                pacmanDestination.X -= GraphicsDevice.Viewport.Width;
+            }
+            if (pacmanDestination.X < -5)
+            {
+                pacmanDestination.X += GraphicsDevice.Viewport.Width;
+            }
+            // Pellet array zone :(
+            if (pacmanDestination.Intersects(pelletDestination[1]))
+            {
+                pelletDestination[1] = new Rectangle(-50, -50, 0, 0);
+            }
+            
+            oldKB = kb;
             base.Update(gameTime);
         }
 
@@ -81,9 +159,13 @@ namespace Test
         /// <param name="gameTime">Provides a snapshot of timing values.</param>
         protected override void Draw(GameTime gameTime)
         {
-            GraphicsDevice.Clear(Color.CornflowerBlue);
+            GraphicsDevice.Clear(Color.Black);
 
             // TODO: Add your drawing code here
+            spriteBatch.Begin();
+            spriteBatch.Draw(pacTxt, pelletDestination[1], pellet, Color.White, 0, new Vector2(0, 0), SpriteEffects.None, 0);
+            spriteBatch.Draw(pacTxt, pacmanDestination, pacman, Color.White, (float)MathHelper.ToRadians(pacDirection), new Vector2(60 / 2, 60 / 2), SpriteEffects.None, 0);
+            spriteBatch.End();
 
             base.Draw(gameTime);
         }
