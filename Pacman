@@ -29,12 +29,28 @@ namespace Pacman
         Vector2 pacPos;
         Vector2 pacStart;
 
+
+        //Background stage
+        Rectangle background;
+
+        Texture2D background_tex,box;
+
+
+
         KeyboardState oldKB;
 
         public Game1()
         {
             graphics = new GraphicsDeviceManager(this);
             Content.RootDirectory = "Content";
+
+            graphics.PreferredBackBufferWidth = 960;
+            graphics.PreferredBackBufferHeight = 720;
+            graphics.ApplyChanges();
+
+            this.Window.AllowUserResizing = true;
+
+
         }
 
         /// <summary>
@@ -60,6 +76,12 @@ namespace Pacman
             pacmanDestination = new Rectangle((int)pacStart.X, (int)pacStart.Y, text, text);
             pacDirection = 0;
 
+
+            //Background stage
+            background = new Rectangle(0, 0, GraphicsDevice.Viewport.Width, GraphicsDevice.Viewport.Height);
+
+
+            
             base.Initialize();
         }
 
@@ -74,6 +96,13 @@ namespace Pacman
 
             // TODO: use this.Content to load your game content here
             pacTxt = this.Content.Load<Texture2D>("Pac-Man SpriteSheet");
+
+
+            //background stage
+            background_tex = this.Content.Load<Texture2D>("pacman map");
+            box = this.Content.Load<Texture2D>("whitebox");
+
+    
         }
 
         /// <summary>
@@ -142,6 +171,12 @@ namespace Pacman
 
             // TODO: Add your drawing code here
             spriteBatch.Begin();
+            //Background stage
+            spriteBatch.Draw(background_tex, background, Color.White);
+            spriteBatch.Draw(box, new Rectangle(88, 48, 98, 48), Color.White);
+
+
+            //Pacman
             spriteBatch.Draw(pacTxt, pacmanDestination, pacman, Color.White, (float)MathHelper.ToRadians(pacDirection), new Vector2(60 / 2, 60 / 2), SpriteEffects.None, 0);
             spriteBatch.End();
 
