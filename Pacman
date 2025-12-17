@@ -9,7 +9,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 
-namespace Pacman
+namespace Test
 {
     /// <summary>
     /// This is the main type for your game
@@ -33,9 +33,15 @@ namespace Pacman
         //Background stage
         Rectangle background;
 
-        Texture2D background_tex,box;
+        Texture2D background_tex, box;
 
 
+        //pacman animations
+        Boolean moving = true;
+        List<Rectangle> pacAnimation_movingRight = new List<Rectangle>();
+        int currentAnimationStage = 0;
+        double time,pastTime;
+        SpriteFont font;
 
         KeyboardState oldKB;
 
@@ -44,8 +50,8 @@ namespace Pacman
             graphics = new GraphicsDeviceManager(this);
             Content.RootDirectory = "Content";
 
-            graphics.PreferredBackBufferWidth = 960;
-            graphics.PreferredBackBufferHeight = 720;
+            graphics.PreferredBackBufferWidth = 772;
+            graphics.PreferredBackBufferHeight = 1000;
             graphics.ApplyChanges();
 
             this.Window.AllowUserResizing = true;
@@ -68,20 +74,31 @@ namespace Pacman
             pacMovement.X = pacSpeed;
             pacMovement.Y = 0; //Pacman begins game moving right
             pacPos.X = 0;
-            pacPos.Y = 0; 
+            pacPos.Y = 0;
             pacStart.X = 100;
             pacStart.Y = 100; //pacman starting position
 
-            pacman = new Rectangle(639, 67, 60, 60);
+            pacman = new Rectangle(637, 67, 52, 57);
             pacmanDestination = new Rectangle((int)pacStart.X, (int)pacStart.Y, text, text);
             pacDirection = 0;
 
+            //Pacman animation 
+            pacAnimation_movingRight.Add(new Rectangle(637, 3, 59, 57));
+            pacAnimation_movingRight.Add(new Rectangle(637, 67, 52, 57));
+            pacAnimation_movingRight.Add(new Rectangle(637, 131, 52, 57));
+            pastTime = 0;
+
+
+
 
             //Background stage
-            background = new Rectangle(0, 0, GraphicsDevice.Viewport.Width, GraphicsDevice.Viewport.Height);
-
+            background = new Rectangle(0, 50, 772, 864);
 
             
+            
+
+
+
             base.Initialize();
         }
 
@@ -97,12 +114,12 @@ namespace Pacman
             // TODO: use this.Content to load your game content here
             pacTxt = this.Content.Load<Texture2D>("Pac-Man SpriteSheet");
 
-
+            font = this.Content.Load<SpriteFont>("SpriteFont1");
             //background stage
             background_tex = this.Content.Load<Texture2D>("pacman map");
             box = this.Content.Load<Texture2D>("whitebox");
 
-    
+
         }
 
         /// <summary>
@@ -126,6 +143,7 @@ namespace Pacman
             if (GamePad.GetState(PlayerIndex.One).Buttons.Back == ButtonState.Pressed)
                 this.Exit();
 
+            time +=  gameTime.ElapsedGameTime.TotalMilliseconds;
             // TODO: Add your update logic here
 
             if (kb.IsKeyDown(Keys.W) || kb.IsKeyDown(Keys.Up))
@@ -157,7 +175,33 @@ namespace Pacman
             pacPos.Y += pacMovement.Y;
             pacmanDestination = new Rectangle((int)(pacStart.X + pacPos.X), (int)(pacStart.Y + pacPos.Y), text, text);
 
+
+            //Pacman animation
+            
+            if (currentAnimationStage > 1)
+            {
+               currentAnimationStage = 0;
+            }
+            else if(pastTime < time)
+            {
+               currentAnimationStage += 1;
+            }
+            
+                
+            
+
+            
+            
+
+
+
+
             oldKB = kb;
+            if(pastTime < time)
+            {
+                pastTime = time + 60;
+            }
+            
             base.Update(gameTime);
         }
 
@@ -173,12 +217,11 @@ namespace Pacman
             spriteBatch.Begin();
             //Background stage
             spriteBatch.Draw(background_tex, background, Color.White);
-                    //Drawing invisble wall f
-                    spriteBatch.Draw(box, new Rectangle(88, 48, 98, 48), Color.White);
-            
+            //spriteBatch.Draw(box, new Rectangle(88, 48, 98, 48), Color.White);
 
+            spriteBatch.DrawString(font, time +"", new Vector2(100, 100), Color.White);
             //Pacman
-            spriteBatch.Draw(pacTxt, pacmanDestination, pacman, Color.White, (float)MathHelper.ToRadians(pacDirection), new Vector2(60 / 2, 60 / 2), SpriteEffects.None, 0);
+            spriteBatch.Draw(pacTxt, pacmanDestination, pacAnimation_movingRight[currentAnimationStage], Color.White, (float)MathHelper.ToRadians(pacDirection), new Vector2(60 / 2, 60 / 2), SpriteEffects.None, 0);
             spriteBatch.End();
 
             base.Draw(gameTime);
