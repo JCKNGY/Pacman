@@ -173,8 +173,9 @@ namespace Pacman
             spriteBatch.Begin();
             //Background stage
             spriteBatch.Draw(background_tex, background, Color.White);
-            spriteBatch.Draw(box, new Rectangle(88, 48, 98, 48), Color.White);
-
+                    //Drawing invisble wall f
+                    spriteBatch.Draw(box, new Rectangle(88, 48, 98, 48), Color.White);
+            
 
             //Pacman
             spriteBatch.Draw(pacTxt, pacmanDestination, pacman, Color.White, (float)MathHelper.ToRadians(pacDirection), new Vector2(60 / 2, 60 / 2), SpriteEffects.None, 0);
