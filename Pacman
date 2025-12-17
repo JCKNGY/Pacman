@@ -31,13 +31,25 @@ namespace Pacman
         // Normal Pellet
         Rectangle pellet;
         Rectangle[] pelletDestination;
+        //Background stage
+        Rectangle background;
+        Texture2D background_tex;
+        // Points
+        int points;
+        SpriteFont font;
+        string pointText;
 
         KeyboardState oldKB;
-
+        
         public Game1()
         {
             graphics = new GraphicsDeviceManager(this);
             Content.RootDirectory = "Content";
+            graphics.PreferredBackBufferWidth = 772;
+            graphics.PreferredBackBufferHeight = 1064;
+            graphics.ApplyChanges();
+
+            this.Window.AllowUserResizing = true;
         }
 
         /// <summary>
@@ -65,8 +77,15 @@ namespace Pacman
             // Pellets
             pelletDestination = new Rectangle[240];
             pelletDestination[1] = new Rectangle(90, 90, 8, 8);
+            pelletDestination[2] = new Rectangle(90, 90, 8, 8);
+            pelletDestination[3] = new Rectangle(90, 90, 8, 8);
+            pelletDestination[4] = new Rectangle(90, 90, 8, 8);
             pellet = new Rectangle(876, 588, 8, 8);
-
+            //Background stage
+            background = new Rectangle(0, 100, 772, 864);
+            //Points
+            points = 0;
+            pointText = "0";
             base.Initialize();
         }
 
@@ -81,6 +100,10 @@ namespace Pacman
 
             // TODO: use this.Content to load your game content here
             pacTxt = this.Content.Load<Texture2D>("Pac-Man SpriteSheet");
+            //background stage
+            background_tex = this.Content.Load<Texture2D>("pacman map");
+            //Sprite Font
+            font = this.Content.Load<SpriteFont>("SpriteFont1");
         }
 
         /// <summary>
@@ -143,12 +166,33 @@ namespace Pacman
             {
                 pacmanDestination.X += GraphicsDevice.Viewport.Width;
             }
-            // Pellet array zone :(
+            //Pellets
             if (pacmanDestination.Intersects(pelletDestination[1]))
             {
                 pelletDestination[1] = new Rectangle(-50, -50, 0, 0);
+                points += 10;
+                pointText = points.ToString();
             }
-            
+            if (pacmanDestination.Intersects(pelletDestination[2]))
+            {
+                pelletDestination[1] = new Rectangle(-50, -50, 0, 0);
+                points += 10;
+                pointText = points.ToString();
+            }
+            if (pacmanDestination.Intersects(pelletDestination[3]))
+            {
+                pelletDestination[1] = new Rectangle(-50, -50, 0, 0);
+                points += 10;
+                pointText = points.ToString();
+            }
+            if (pacmanDestination.Intersects(pelletDestination[4]))
+            {
+                pelletDestination[1] = new Rectangle(-50, -50, 0, 0);
+                points += 10;
+                pointText = points.ToString();
+            }
+
+
             oldKB = kb;
             base.Update(gameTime);
         }
@@ -163,8 +207,13 @@ namespace Pacman
 
             // TODO: Add your drawing code here
             spriteBatch.Begin();
+            spriteBatch.Draw(background_tex, background, Color.White);
             spriteBatch.Draw(pacTxt, pelletDestination[1], pellet, Color.White, 0, new Vector2(0, 0), SpriteEffects.None, 0);
+            spriteBatch.Draw(pacTxt, pelletDestination[2], pellet, Color.White, 0, new Vector2(0, 0), SpriteEffects.None, 0);
+            spriteBatch.Draw(pacTxt, pelletDestination[3], pellet, Color.White, 0, new Vector2(0, 0), SpriteEffects.None, 0);
+            spriteBatch.Draw(pacTxt, pelletDestination[4], pellet, Color.White, 0, new Vector2(0, 0), SpriteEffects.None, 0);
             spriteBatch.Draw(pacTxt, pacmanDestination, pacman, Color.White, (float)MathHelper.ToRadians(pacDirection), new Vector2(60 / 2, 60 / 2), SpriteEffects.None, 0);
+            spriteBatch.DrawString(font, pointText, new Vector2(100, 20), Color.White);
             spriteBatch.End();
 
             base.Draw(gameTime);
