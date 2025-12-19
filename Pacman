@@ -9,7 +9,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 
-namespace Pacman
+namespace test
 {
     /// <summary>
     /// This is the main type for your game
@@ -20,24 +20,66 @@ namespace Pacman
         SpriteBatch spriteBatch;
 
         Texture2D pacTxt;
+        Texture2D hallwayCheck;
         Rectangle pacman;
         Rectangle pacmanDestination;
+
+        Rectangle hallway1;
+        Rectangle hallway2;
+        Rectangle hallway3;
+        Rectangle hallway4;
+        Rectangle hallway5;
+        Rectangle hallway6;
+        Rectangle hallway7;
+        Rectangle hallway8;
+        Rectangle hallway9;
+        Rectangle hallway10;
+        Rectangle hallway11;
+        Rectangle hallway12;
+        Rectangle hallway13;
+        Rectangle hallway14;
+        Rectangle hallway15;
+        Rectangle hallway16;
+        Rectangle hallway17;
+        Rectangle hallway18;
+
         int pacSpeed;
         int pacDirection;
         int text = 30;
         Vector2 pacMovement;
         Vector2 pacPos;
         Vector2 pacStart;
-        // Normal Pellet
-        Rectangle pellet;
-        Rectangle[] pelletDestination;
+
         //Background stage
         Rectangle background;
         Texture2D background_tex;
+
+
+        //pacman animations
+
+        List<Rectangle> pacAnimation_movingRight = new List<Rectangle>();
+        int currentAnimationStage = 0;
+        double time, pastTime;
+
+        //Death Animations
+        List<Rectangle> pacAnimation_death = new List<Rectangle>();
+        Boolean dead = false;
+
+        // Death timing
+        double deathTimer = 0;
+        int deathFrame = 0;
+        double death_time = 80;
+
+
+        // Normal Pellet
+        Rectangle pellet;
+        Rectangle[] pelletDestination;
+
         // Points
         int points;
         SpriteFont font;
         string pointText;
+
 
         KeyboardState oldKB;
 
@@ -45,11 +87,14 @@ namespace Pacman
         {
             graphics = new GraphicsDeviceManager(this);
             Content.RootDirectory = "Content";
+
             graphics.PreferredBackBufferWidth = 772;
-            graphics.PreferredBackBufferHeight = 1064;
+            graphics.PreferredBackBufferHeight = 1000;
             graphics.ApplyChanges();
 
             this.Window.AllowUserResizing = true;
+
+
         }
 
         /// <summary>
@@ -71,9 +116,55 @@ namespace Pacman
             pacStart.X = 100;
             pacStart.Y = 100; //pacman starting position
 
-            pacman = new Rectangle(639, 67, 60, 60);
+            pacman = new Rectangle(637, 67, 52, 57);
             pacmanDestination = new Rectangle((int)pacStart.X, (int)pacStart.Y, text, text);
             pacDirection = 0;
+
+            //Pacman animation 
+            pacAnimation_movingRight.Add(new Rectangle(637, 3, 59, 57));
+            pacAnimation_movingRight.Add(new Rectangle(637, 67, 52, 57));
+            pacAnimation_movingRight.Add(new Rectangle(637, 131, 52, 57));
+            pastTime = 0;
+
+            //Death Animations
+            pacAnimation_death.Add(new Rectangle(514, 5, 59, 57));
+            pacAnimation_death.Add(new Rectangle(514, 69, 59, 57));
+            pacAnimation_death.Add(new Rectangle(510, 140, 59, 57));
+            pacAnimation_death.Add(new Rectangle(510, 209, 59, 57));
+            pacAnimation_death.Add(new Rectangle(510, 279, 59, 57));
+            pacAnimation_death.Add(new Rectangle(510, 346, 59, 57));
+            pacAnimation_death.Add(new Rectangle(510, 414, 59, 57));
+            pacAnimation_death.Add(new Rectangle(510, 473, 59, 57));
+
+            pacAnimation_death.Add(new Rectangle(459, 23, 59, 57));
+            pacAnimation_death.Add(new Rectangle(459, 80, 59, 57));
+            pacAnimation_death.Add(new Rectangle(459, 146, 59, 57));
+            pacAnimation_death.Add(new Rectangle(454, 206, 59, 57));
+
+            //vertical
+            hallway1 = new Rectangle(152, 0, 52, 864);
+            hallway2 = new Rectangle(567, 0, 52, 864);
+            hallway3 = new Rectangle(17, 0, 52, 864);
+            hallway4 = new Rectangle(240, 0, 52, 864);
+            hallway5 = new Rectangle(320, 0, 52, 864);
+            hallway6 = new Rectangle(400, 0, 52, 864);
+            hallway7 = new Rectangle(702, 0, 52, 864);
+            hallway8 = new Rectangle(487, 0, 52, 864);
+            //horizontal
+            hallway9 = new Rectangle(0, 0, 864, 52);
+            hallway10 = new Rectangle(0, 120, 864, 52);
+            hallway11 = new Rectangle(0, 200, 864, 52);
+            hallway12 = new Rectangle(0, 380, 864, 52);
+            hallway13 = new Rectangle(0, 535, 864, 52);
+            hallway14 = new Rectangle(0, 625, 864, 52);
+            hallway15 = new Rectangle(0, 705, 864, 52);
+            hallway16 = new Rectangle(0, 790, 864, 52);
+            hallway17 = new Rectangle(0, 280, 864, 52);
+            hallway18 = new Rectangle(0, 450, 864, 52);
+
+            //Background stage
+            background = new Rectangle(0, 0, GraphicsDevice.Viewport.Width, GraphicsDevice.Viewport.Height);
+
             // Pellets
             pelletDestination = new Rectangle[240];
             pelletDestination[1] = new Rectangle(90, 90, 8, 8);
@@ -81,11 +172,11 @@ namespace Pacman
             pelletDestination[3] = new Rectangle(90, 90, 8, 8);
             pelletDestination[4] = new Rectangle(90, 90, 8, 8);
             pellet = new Rectangle(876, 588, 8, 8);
-            //Background stage
-            background = new Rectangle(0, 100, 772, 864);
             //Points
             points = 0;
             pointText = "0";
+
+
             base.Initialize();
         }
 
@@ -100,10 +191,13 @@ namespace Pacman
 
             // TODO: use this.Content to load your game content here
             pacTxt = this.Content.Load<Texture2D>("Pac-Man SpriteSheet");
+            hallwayCheck = this.Content.Load<Texture2D>("wall");
+            font = this.Content.Load<SpriteFont>("SpriteFont1");
+
+
             //background stage
             background_tex = this.Content.Load<Texture2D>("pacman map");
-            //Sprite Font
-            font = this.Content.Load<SpriteFont>("SpriteFont1");
+
         }
 
         /// <summary>
@@ -123,49 +217,89 @@ namespace Pacman
         protected override void Update(GameTime gameTime)
         {
             KeyboardState kb = Keyboard.GetState();
+            time += gameTime.ElapsedGameTime.TotalMilliseconds;
             // Allows the game to exit
-            if (GamePad.GetState(PlayerIndex.One).Buttons.Back == ButtonState.Pressed)
+            if (GamePad.GetState(PlayerIndex.One).Buttons.Back == ButtonState.Pressed || kb.IsKeyDown(Keys.Escape))
                 this.Exit();
 
             // TODO: Add your update logic here
 
-            if (kb.IsKeyDown(Keys.W) || kb.IsKeyDown(Keys.Up))
+            if (!dead && kb.IsKeyDown(Keys.L) && oldKB.IsKeyUp(Keys.L))
             {
-                pacMovement.X = 0;
-                pacMovement.Y = (-1 * pacSpeed);
-                pacDirection = 270;
-            }
-            if (kb.IsKeyDown(Keys.D) || kb.IsKeyDown(Keys.Right))
-            {
-                pacMovement.X = pacSpeed;
-                pacMovement.Y = 0;
-                pacDirection = 0;
-            }
-            if (kb.IsKeyDown(Keys.S) || kb.IsKeyDown(Keys.Down))
-            {
-                pacMovement.X = 0;
-                pacMovement.Y = pacSpeed;
-                pacDirection = 90;
-            }
-            if (kb.IsKeyDown(Keys.A) || kb.IsKeyDown(Keys.Left))
-            {
-                pacMovement.X = (-1 * pacSpeed); ;
-                pacMovement.Y = 0;
-                pacDirection = 180;
+                dead = true;
+                pacSpeed = 0;
+                pacMovement = Vector2.Zero;
+
+                deathTimer = 0;
+                deathFrame = 0;
             }
 
-            pacPos.X += pacMovement.X;
-            pacPos.Y += pacMovement.Y;
+
+            if (!dead)
+            {
+                if ((kb.IsKeyDown(Keys.W) || kb.IsKeyDown(Keys.Up)) && wallCollideVertical())
+                {
+                    pacMovement.X = 0;
+                    pacMovement.Y = (-1 * pacSpeed);
+                    pacDirection = 270;
+                }
+                if ((kb.IsKeyDown(Keys.D) || kb.IsKeyDown(Keys.Right)) && wallCollideHorizontal())
+                {
+                    pacMovement.X = pacSpeed;
+                    pacMovement.Y = 0;
+                    pacDirection = 0;
+                }
+                if ((kb.IsKeyDown(Keys.S) || kb.IsKeyDown(Keys.Down)) && wallCollideVertical())
+                {
+                    pacMovement.X = 0;
+                    pacMovement.Y = pacSpeed;
+                    pacDirection = 90;
+                }
+                if ((kb.IsKeyDown(Keys.A) || kb.IsKeyDown(Keys.Left)) && wallCollideHorizontal())
+                {
+                    pacMovement.X = (-1 * pacSpeed); ;
+                    pacMovement.Y = 0;
+                    pacDirection = 180;
+                }
+                pacPos.X += pacMovement.X;
+                pacPos.Y += pacMovement.Y;
+            }
+
+            if (dead)
+            {
+                deathAnimation(gameTime);
+            }
+
+
+
             pacmanDestination = new Rectangle((int)(pacStart.X + pacPos.X), (int)(pacStart.Y + pacPos.Y), text, text);
-            //Warp Zone
+
+            wallCollideVertical(); //runs method
+            wallCollideHorizontal();
+
+            //Pacman animation
+
+            if (currentAnimationStage > 1)
+            {
+                currentAnimationStage = 0;
+            }
+            else if (pastTime < time)
+            {
+                currentAnimationStage += 1;
+            }
+
+
+            // Warp tunnel 
             if (pacmanDestination.X > GraphicsDevice.Viewport.Width)
             {
-                pacmanDestination.X -= GraphicsDevice.Viewport.Width;
+                pacPos.X = -pacStart.X - text;
             }
-            if (pacmanDestination.X < -5)
+            else if (pacmanDestination.X < -text)
             {
-                pacmanDestination.X += GraphicsDevice.Viewport.Width;
+                pacPos.X = GraphicsDevice.Viewport.Width - pacStart.X;
             }
+
+
             //Pellets
             if (pacmanDestination.Intersects(pelletDestination[1]))
             {
@@ -193,8 +327,182 @@ namespace Pacman
             }
 
 
+
             oldKB = kb;
+            if (pastTime < time)
+            {
+                pastTime = time + 60;
+            }
             base.Update(gameTime);
+        }
+        public void deathAnimation(GameTime gameTime)
+        {
+            deathTimer += gameTime.ElapsedGameTime.TotalMilliseconds;
+
+            if (deathTimer >= death_time)
+            {
+                deathTimer = 0;
+                deathFrame++;
+            }
+
+            if (deathFrame >= pacAnimation_death.Count)
+            {
+                resetGame();
+            }
+        }
+        public void resetGame()
+        {
+            dead = false;
+            deathFrame = 0;
+            deathTimer = 0;
+            currentAnimationStage = 0;
+            pacMovement = new Vector2();
+            pacPos = new Vector2();
+            pacSpeed = 3;
+            pacMovement.X = pacSpeed;
+            pacMovement.Y = 0;
+            pacPos.X = 0;
+            pacPos.Y = 0;
+            pacStart.X = 100;
+            pacStart.Y = 100;
+
+            pacman = new Rectangle(637, 67, 52, 57);
+            pacmanDestination = new Rectangle((int)pacStart.X, (int)pacStart.Y, text, text);
+            pacDirection = 0;
+            // Pellets
+            pelletDestination = new Rectangle[240];
+            pelletDestination[1] = new Rectangle(90, 90, 8, 8);
+            pelletDestination[2] = new Rectangle(90, 90, 8, 8);
+            pelletDestination[3] = new Rectangle(90, 90, 8, 8);
+            pelletDestination[4] = new Rectangle(90, 90, 8, 8);
+            pellet = new Rectangle(876, 588, 8, 8);
+            //Points
+            points = 0;
+            pointText = "0";
+
+            return;
+        }
+        public bool wallCollideVertical()
+        {
+            //method makes sure Pacman snaps properly in grid
+            if (isOverlapping(pacmanDestination, hallway1))
+            {
+                if (pacMovement.Y != 0)
+                    pacmanDestination.X = 177;
+                return true;
+            }
+            if (isOverlapping(pacmanDestination, hallway2))
+            {
+                if (pacMovement.Y != 0)
+                    pacmanDestination.X = 593;
+                return true;
+            }
+            if (isOverlapping(pacmanDestination, hallway3))
+            {
+                if (pacMovement.Y != 0)
+                    pacmanDestination.X = 43;
+                return true;
+            }
+            if (isOverlapping(pacmanDestination, hallway4))
+            {
+                if (pacMovement.Y != 0)
+                    pacmanDestination.X = 266;
+                return true;
+            }
+            if (isOverlapping(pacmanDestination, hallway5))
+            {
+                if (pacMovement.Y != 0)
+                    pacmanDestination.X = 346;
+                return true;
+            }
+            if (isOverlapping(pacmanDestination, hallway6))
+            {
+                if (pacMovement.Y != 0)
+                    pacmanDestination.X = 426;
+                return true;
+            }
+            if (isOverlapping(pacmanDestination, hallway7))
+            {
+                if (pacMovement.Y != 0)
+                    pacmanDestination.X = 728;
+                return true;
+            }
+            if (isOverlapping(pacmanDestination, hallway8))
+            {
+                if (pacMovement.Y != 0)
+                    pacmanDestination.X = 513;
+                return true;
+            }
+            return false;
+        }
+        public bool wallCollideHorizontal()
+        {
+            //method makes sure Pacman snaps properly in grid
+            if (isOverlapping(pacmanDestination, hallway9))
+            {
+                if (pacMovement.X != 0)
+                    pacmanDestination.Y = 26;
+                return true;
+            }
+            if (isOverlapping(pacmanDestination, hallway10))
+            {
+                if (pacMovement.X != 0)
+                    pacmanDestination.Y = 146;
+                return true;
+            }
+            if (isOverlapping(pacmanDestination, hallway11))
+            {
+                if (pacMovement.X != 0)
+                    pacmanDestination.Y = 226;
+                return true;
+            }
+            if (isOverlapping(pacmanDestination, hallway12))
+            {
+                if (pacMovement.X != 0)
+                    pacmanDestination.Y = 406;
+                return true;
+            }
+            if (isOverlapping(pacmanDestination, hallway13))
+            {
+                if (pacMovement.X != 0)
+                    pacmanDestination.Y = 561;
+                return true;
+            }
+            if (isOverlapping(pacmanDestination, hallway14))
+            {
+                if (pacMovement.X != 0)
+                    pacmanDestination.Y = 651;
+                return true;
+            }
+            if (isOverlapping(pacmanDestination, hallway15))
+            {
+                if (pacMovement.X != 0)
+                    pacmanDestination.Y = 731;
+                return true;
+            }
+            if (isOverlapping(pacmanDestination, hallway16))
+            {
+                if (pacMovement.X != 0)
+                    pacmanDestination.Y = 816;
+                return true;
+            }
+            if (isOverlapping(pacmanDestination, hallway17))
+            {
+                if (pacMovement.X != 0)
+                    pacmanDestination.Y = 306;
+                return true;
+            }
+            if (isOverlapping(pacmanDestination, hallway18))
+            {
+                if (pacMovement.X != 0)
+                    pacmanDestination.Y = 476;
+                return true;
+            }
+            return false;
+        }
+        bool isOverlapping(Rectangle rec1, Rectangle rec2)
+        {
+            return (rec1.Right > rec2.Left && rec1.Left < rec2.Right && rec1.Bottom > rec2.Top && rec1.Top < rec2.Bottom);
         }
 
         /// <summary>
@@ -207,15 +515,52 @@ namespace Pacman
 
             // TODO: Add your drawing code here
             spriteBatch.Begin();
+            //Background stage
             spriteBatch.Draw(background_tex, background, Color.White);
+
+            //Pacman
+            //spriteBatch.Draw(hallwayCheck, hallway1, Color.White);
+            //spriteBatch.Draw(hallwayCheck, hallway2, Color.White);
+            //spriteBatch.Draw(hallwayCheck, hallway3, Color.White);
+            //spriteBatch.Draw(hallwayCheck, hallway4, Color.White);
+            //spriteBatch.Draw(hallwayCheck, hallway5, Color.White);
+            //spriteBatch.Draw(hallwayCheck, hallway6, Color.White);
+            //spriteBatch.Draw(hallwayCheck, hallway7, Color.White);
+            //spriteBatch.Draw(hallwayCheck, hallway8, Color.White);
+            //spriteBatch.Draw(hallwayCheck, hallway9, Color.Red);
+            //spriteBatch.Draw(hallwayCheck, hallway10, Color.Red);
+            //spriteBatch.Draw(hallwayCheck, hallway11, Color.Red);
+            //spriteBatch.Draw(hallwayCheck, hallway12, Color.Red);
+            //spriteBatch.Draw(hallwayCheck, hallway13, Color.Red);
+            //spriteBatch.Draw(hallwayCheck, hallway14, Color.Red);
+            //spriteBatch.Draw(hallwayCheck, hallway15, Color.Red);
+            //spriteBatch.Draw(hallwayCheck, hallway16, Color.Red);
+            //spriteBatch.Draw(hallwayCheck, hallway17, Color.Red);
+            //spriteBatch.Draw(hallwayCheck, hallway18, Color.Red);
+
+            //Pacman
+            if (dead == true)
+            {
+                spriteBatch.Draw(pacTxt, pacmanDestination, pacAnimation_death[deathFrame], Color.White, (float)MathHelper.ToRadians(0), new Vector2(60 / 2, 60 / 2), SpriteEffects.None, 0);
+            }
+            else
+            {
+                spriteBatch.Draw(pacTxt, pacmanDestination, pacAnimation_movingRight[currentAnimationStage], Color.White, (float)MathHelper.ToRadians(pacDirection), new Vector2(60 / 2, 60 / 2), SpriteEffects.None, 0);
+            }
+
+
+            // Draw pellets
             spriteBatch.Draw(pacTxt, pelletDestination[1], pellet, Color.White, 0, new Vector2(0, 0), SpriteEffects.None, 0);
             spriteBatch.Draw(pacTxt, pelletDestination[2], pellet, Color.White, 0, new Vector2(0, 0), SpriteEffects.None, 0);
             spriteBatch.Draw(pacTxt, pelletDestination[3], pellet, Color.White, 0, new Vector2(0, 0), SpriteEffects.None, 0);
             spriteBatch.Draw(pacTxt, pelletDestination[4], pellet, Color.White, 0, new Vector2(0, 0), SpriteEffects.None, 0);
-            spriteBatch.Draw(pacTxt, pacmanDestination, pacman, Color.White, (float)MathHelper.ToRadians(pacDirection), new Vector2(60 / 2, 60 / 2), SpriteEffects.None, 0);
-            spriteBatch.DrawString(font, pointText, new Vector2(100, 20), Color.White);
-            spriteBatch.End();
 
+            // Draw score
+            spriteBatch.DrawString(font, pointText, new Vector2(100, 20), Color.White);
+
+
+
+            spriteBatch.End();
             base.Draw(gameTime);
         }
     }
